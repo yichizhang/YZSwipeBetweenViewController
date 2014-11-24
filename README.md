@@ -12,25 +12,27 @@ Simply use [CocoaPods](http://cocoapods.org/):
 ## Usage
 
 ```objc
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions{
+@property (strong) YZSwipeBetweenViewController *swipeBetweenVC;
 
+- (BOOL)application:(UIApplication *)application
+didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+	// Override point for customization after application launch.
+	
 	self.swipeBetweenVC = [YZSwipeBetweenViewController new];
 	
 	UIViewController *vc1 = [DemoMainViewController new];
-	UINavigationController *navCon1 = [[UINavigationController alloc] initWithRootViewController:vc1];
+	UINavigationController *navCon1 =
+	[[UINavigationController alloc]initWithRootViewController:vc1];
 	
 	UIViewController *vc2 = [DemoMainViewController new];
-	UINavigationController *navCon2 = [[UINavigationController alloc] initWithRootViewController:vc2];
+	UINavigationController *navCon2 =
+	[[UINavigationController alloc] initWithRootViewController:vc2];
 	
 	UIViewController *vc3 = [DemoMainViewController new];
-	UINavigationController *navCon3 = [[UINavigationController alloc] initWithRootViewController:vc3];
+	UINavigationController *navCon3 =
+	[[UINavigationController alloc] initWithRootViewController:vc3];
 	
-	self.swipeBetweenVC.viewControllers =
-	@[
-	  navCon1,
-	  navCon2,
-	  navCon3
-	  ];
+	self.swipeBetweenVC.viewControllers = @[navCon1, navCon2, navCon3];
 	
 	self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 	self.window.backgroundColor = [UIColor blackColor];
@@ -38,6 +40,5 @@ Simply use [CocoaPods](http://cocoapods.org/):
 	[self.window makeKeyAndVisible];
 	
 	return YES;
-
 }
 ```
