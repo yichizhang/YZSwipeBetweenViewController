@@ -16,8 +16,12 @@
 
 @interface YZSwipeBetweenViewController : UIViewController
 
-@property (strong) NSArray *viewControllers;
-@property (strong) UIScrollView *scrollView;
-@property (strong) UIView *overlayView;
+@property (nonatomic, strong) NSArray *viewControllers;
+@property (nonatomic, strong) UIScrollView *scrollView;
+@property (nonatomic, assign) int initialViewControllerIndex;
+
+- (void)reloadViewControllers;
+- (void)scrollToViewControllerAtIndex:(NSInteger)index;
+- (void)scrollToViewControllerAtIndex:(NSInteger)index animated:(BOOL)animated;
 
 @end

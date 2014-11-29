@@ -23,43 +23,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    
-    CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
-    
-    self.scrollView = [[UIScrollView alloc] initWithFrame:
-                       mainScreenBounds
-                       ];
-    CGFloat currentOriginX = 0;
-    
-    for (UIViewController *vc in self.viewControllers) {
-        CGRect frame = vc.view.frame;
-        frame.origin.x = currentOriginX;
-        vc.view.frame = frame;
-        
-        [self addChildViewController:vc];
-        [self.scrollView addSubview:vc.view];
-        [vc didMoveToParentViewController:self];
-        
-        currentOriginX += mainScreenBounds.size.width;
-    }
-    
-    //self.scrollView.backgroundColor = [UIColor colorWithWhite:0.9 alpha:1.0];
-    self.scrollView.contentSize =
-    CGSizeMake(
-               currentOriginX,
-               mainScreenBounds.size.height
-               );
-    self.scrollView.pagingEnabled = YES;
-    self.scrollView.showsHorizontalScrollIndicator = NO;
-    self.scrollView.showsVerticalScrollIndicator = NO;
-    
-    self.scrollView.contentOffset =
-    CGPointMake(
-                (self.viewControllers.count/2) * mainScreenBounds.size.width,
-                0
-                );
-    
-    [self.view addSubview:self.scrollView];
+	[self setupViewControllersForScrollView];
 	
 }
 
@@ -68,6 +32,104 @@
     // Dispose of any resources that can be recreated.
 }
 
+#pragma mark - Private methods
+- (void)removeViewControllersFromScrollView{
+	
+	for (UIViewController *vc in self.viewControllers) {
+		
+		[vc willMoveToParentViewController:nil];
+		[vc.view removeFromSuperview];
+		[vc removeFromParentViewController];
+		
+	}
+	
+}
+
+- (void)addViewControllersToScrollView{
+	
+	[self.scrollView removeFromSuperview];
+	
+	CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
+	
+	CGFloat currentOriginX = 0;
+	
+	for (UIViewController *vc in self.viewControllers) {
+		CGRect frame = vc.view.frame;
+		frame.origin.x = currentOriginX;
+		vc.view.frame = frame;
+		
+		[self addChildViewController:vc];
+		[self.scrollView addSubview:vc.view];
+		[vc didMoveToParentViewController:self];
+		
+		currentOriginX += mainScreenBounds.size.width;
+	}
+	
+	self.scrollView.contentSize =
+	CGSizeMake(
+			   currentOriginX,
+			   mainScreenBounds.size.height
+			   );
+	self.scrollView.pagingEnabled = YES;
+	self.scrollView.showsHorizontalScrollIndicator = NO;
+	self.scrollView.showsVerticalScrollIndicator = NO;
+	
+	[self scrollToViewControllerAtIndex:self.initialViewControllerIndex];
+	
+	[self.view addSubview:self.scrollView];
+	
+}
+
+- (void)setupViewControllersForScrollView{
+	
+	[self removeViewControllersFromScrollView];
+	[self addViewControllersToScrollView];
+	
+}
+
+#pragma mark - Public Methods
+- (void)setViewControllers:(NSArray *)viewControllers{
+	
+	_viewControllers = viewControllers;
+	
+	[self setupViewControllersForScrollView];
+	
+}
+
+- (void)reloadViewControllers{
+	
+	[self setupViewControllersForScrollView];
+	
+}
+
+- (void)scrollToViewControllerAtIndex:(NSInteger)index{
+	
+	[self scrollToViewControllerAtIndex:index animated:NO];
+
+}
+
+- (void)scrollToViewControllerAtIndex:(NSInteger)index animated:(BOOL)animated{
+
+	if (index >= 0 && index < self.viewControllers.count) {
+		[self.scrollView
+		 scrollRectToVisible:[self.viewControllers[index] view].frame
+		 animated:YES
+		 ];
+	}
+
+}
+
+#pragma mark - Lazy loading of members
+- (UIScrollView *)scrollView{
+	
+	if (!_scrollView) {
+		_scrollView = [[UIScrollView alloc] initWithFrame:
+					   [[UIScreen mainScreen] bounds]
+					   ];
+	}
+	return _scrollView;
+	
+}
 /*
 #pragma mark - Navigation
 
