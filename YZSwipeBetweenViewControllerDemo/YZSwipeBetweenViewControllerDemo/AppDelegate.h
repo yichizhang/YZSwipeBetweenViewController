@@ -21,5 +21,7 @@
 @property (strong, nonatomic) UIWindow *window;
 @property (strong) YZSwipeBetweenViewController *swipeBetweenVC;
 
+- (void)setupRootViewControllerForWindow;
+
 @end
 
