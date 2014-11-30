@@ -13,6 +13,8 @@ Simply use [CocoaPods](http://cocoapods.org/):
 
 ## Usage
 
+Simple Usage:
+
 ```objc
 @property (strong) YZSwipeBetweenViewController *swipeBetweenVC;
 
@@ -43,4 +45,28 @@ didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 	
 	return YES;
 }
+```
+
+You can change the view controllers:
+
+```objc
+
+self.swipeBetweenVC.viewControllers = newViewControllers;
+[self.swipeBetweenVC reloadViewControllers];
+
+```
+
+Scroll to a view controller at an index:
+
+```objc
+
+//Switch to the first view controller
+[self.swipeBetweenVC scrollToViewControllerAtIndex:0 animated:YES];
+
+//Switch to the second view controller
+[self.swipeBetweenVC scrollToViewControllerAtIndex:1 animated:YES];
+
+//Switch to the third view controller
+[self.swipeBetweenVC scrollToViewControllerAtIndex:2 animated:YES];
+
 ```
