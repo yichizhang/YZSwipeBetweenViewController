@@ -113,7 +113,7 @@
 	if (index >= 0 && index < self.viewControllers.count) {
 		[self.scrollView
 		 scrollRectToVisible:[self.viewControllers[index] view].frame
-		 animated:YES
+		 animated:animated
 		 ];
 	}
 

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "YZSwipeBetweenViewController"
-  s.version      = "0.0.2"
+  s.version      = "0.0.3"
   s.summary      = "A view controller that enables user to swipe left or right to switch to different views."
   s.homepage     = "https://github.com/yichizhang/" + s.name
   s.license      = { :type => 'MIT', :file => 'LICENSE' }
