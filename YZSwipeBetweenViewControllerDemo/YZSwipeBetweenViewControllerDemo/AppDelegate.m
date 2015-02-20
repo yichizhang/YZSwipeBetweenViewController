@@ -75,7 +75,7 @@ didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 	[[UINavigationController alloc] initWithRootViewController:vc3];
 	
 	self.swipeBetweenVC.viewControllers = @[navCon1, navCon2, navCon3];
-	self.swipeBetweenVC.initialViewControllerIndex = self.swipeBetweenVC.viewControllers.count/2;
+	self.swipeBetweenVC.initialViewControllerIndex = (NSInteger)self.swipeBetweenVC.viewControllers.count/2;
 	
 }
 
