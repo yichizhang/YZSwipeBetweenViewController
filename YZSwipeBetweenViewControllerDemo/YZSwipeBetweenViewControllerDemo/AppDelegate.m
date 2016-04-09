@@ -36,17 +36,17 @@
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window.backgroundColor = [UIColor blackColor];
 
-    self.swipeBetweenVC = [YZSwipeBetweenViewController new];
-    [self setupRootViewControllerForWindow];
-    self.window.rootViewController = self.swipeBetweenVC;
+    [self setupRootViewController];
 
     [self.window makeKeyAndVisible];
 
     return YES;
 }
 
-- (void)setupRootViewControllerForWindow
+- (void)setupRootViewController
 {
+    self.swipeBetweenVC = [YZSwipeBetweenViewController new];
+
     UIViewController *vc1 = [DemoMainViewController new];
     UINavigationController *navCon1 =
     [[UINavigationController alloc]initWithRootViewController:vc1];
@@ -60,7 +60,9 @@
     [[UINavigationController alloc] initWithRootViewController:vc3];
 
     self.swipeBetweenVC.viewControllers = @[navCon1, navCon2, navCon3];
-    self.swipeBetweenVC.initialViewControllerIndex = (NSInteger)self.swipeBetweenVC.viewControllers.count/2;
+    self.swipeBetweenVC.currentIndex = (NSUInteger)self.swipeBetweenVC.viewControllers.count/2;
+    
+    self.window.rootViewController = self.swipeBetweenVC;
 }
 
 @end

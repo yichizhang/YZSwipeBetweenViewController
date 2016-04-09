@@ -119,7 +119,7 @@
 - (void)scrollVCButtonTapped:(id)sender
 {
     AppDelegate *appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
-    [appDelegate.swipeBetweenVC scrollToViewControllerAtIndex:self.segControl.selectedSegmentIndex];
+    [appDelegate.swipeBetweenVC setCurrentIndex:self.segControl.selectedSegmentIndex animated:YES];
 }
 
 - (void)changeVCsButtonTapped:(id)sender

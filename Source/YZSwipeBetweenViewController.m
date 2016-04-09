@@ -24,97 +24,140 @@
 
 #import "YZSwipeBetweenViewController.h"
 
-@interface YZSwipeBetweenViewController ()
+@interface YZSwipeBetweenViewController () <UIScrollViewDelegate>
+
+@property (nonatomic, strong) NSArray *_visibleViewControllers;
 
 @end
 
 @implementation YZSwipeBetweenViewController
 
-- (void)viewDidLoad
+- (void)viewWillAppear:(BOOL)animated
 {
-    [super viewDidLoad];
-    [self setupViewControllersForScrollView];
-}
+    [super viewWillAppear:animated];
 
-#pragma mark - Private methods
-- (void)removeViewControllersFromScrollView
-{
-    for (UIViewController *vc in self.viewControllers) {
-        [vc willMoveToParentViewController:nil];
-        [vc.view removeFromSuperview];
-        [vc removeFromParentViewController];
+    if (![self.viewControllers isEqualToArray:__visibleViewControllers]) {
+        [self __setUp];
+        [self __scrollToCurrentIndexAnimated:NO];
     }
 }
 
-- (void)addViewControllersToScrollView
+- (void)viewDidLoad
 {
-    [self.scrollView removeFromSuperview];
+    [super viewDidLoad];
 
-    CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
-    CGFloat currentOriginX = 0;
+    self.scrollView = [[UIScrollView alloc] initWithFrame:self.view.bounds];
+    self.scrollView.delegate = self;
+    self.scrollView.translatesAutoresizingMaskIntoConstraints = false;
+    [self.view addSubview:self.scrollView];
+}
 
+- (void)viewDidLayoutSubviews
+{
+    [self __layout];
+    [self __scrollToCurrentIndexAnimated:NO];
+}
+
+#pragma mark - Override setters / getters
+
+- (void)setCurrentIndex:(NSUInteger)currentIndex
+{
+    [self setCurrentIndex:currentIndex animated:NO];
+}
+
+#pragma mark - Public Methods
+
+- (void)setViewControllers:(NSArray *)viewControllers
+{
+    _viewControllers = viewControllers;
+
+    // __visibleViewControllers exist, means that self has appeared
+    if (__visibleViewControllers) {
+        [self __setUp];
+    }
+}
+
+- (void)setCurrentIndex:(NSUInteger)currentIndex animated:(BOOL)animated
+{
+    NSParameterAssert(currentIndex < self.viewControllers.count);
+
+    _currentIndex = currentIndex;
+    [self __scrollToCurrentIndexAnimated:NO];
+}
+
+#pragma mark - Private methods
+
+- (void)__setUp
+{
+    [self __cleanViewControllers];
+    [self __addViewControllers];
+    [self __layout];
+}
+
+- (void)__cleanViewControllers
+{
+    for (UIViewController *vc in __visibleViewControllers) {
+        [vc willMoveToParentViewController:nil];
+        [vc.view removeFromSuperview];
+        [vc removeFromParentViewController];
+        [vc didMoveToParentViewController:nil];
+    }
+}
+
+- (void)__addViewControllers
+{
     for (UIViewController *vc in self.viewControllers) {
-        CGRect frame = vc.view.frame;
-        frame.origin.x = currentOriginX;
-        vc.view.frame = frame;
-
+        [vc willMoveToParentViewController:self];
         [self addChildViewController:vc];
         [self.scrollView addSubview:vc.view];
         [vc didMoveToParentViewController:self];
 
-        currentOriginX += mainScreenBounds.size.width;
+        vc.view.translatesAutoresizingMaskIntoConstraints = NO;
     }
+    __visibleViewControllers = [self.viewControllers copy];
 
-    self.scrollView.contentSize = CGSizeMake(currentOriginX,
-                                             mainScreenBounds.size.height);
     self.scrollView.pagingEnabled = YES;
     self.scrollView.showsHorizontalScrollIndicator = NO;
     self.scrollView.showsVerticalScrollIndicator = NO;
-    
-    [self scrollToViewControllerAtIndex:self.initialViewControllerIndex];
 
-    [self.view addSubview:self.scrollView];
-}
-
-- (void)setupViewControllersForScrollView
-{
-    [self removeViewControllersFromScrollView];
-    [self addViewControllersToScrollView];
-}
-
-#pragma mark - Public Methods
-- (void)setViewControllers:(NSArray *)viewControllers
-{
-    _viewControllers = viewControllers;
-    [self setupViewControllersForScrollView];
-}
-
-- (void)reloadViewControllers
-{
-    [self setupViewControllersForScrollView];
-}
-
-- (void)scrollToViewControllerAtIndex:(NSInteger)index
-{
-    [self scrollToViewControllerAtIndex:index animated:NO];
-}
-
-- (void)scrollToViewControllerAtIndex:(NSInteger)index animated:(BOOL)animated
-{
-    if (index >= 0 && index < self.viewControllers.count) {
-        [self.scrollView scrollRectToVisible:[self.viewControllers[index] view].frame
-                                    animated:animated];
+    NSUInteger maxCurrentIndex = __visibleViewControllers.count - 1;
+    if (self.currentIndex > maxCurrentIndex) {
+        self.currentIndex = maxCurrentIndex;
     }
 }
 
-#pragma mark - Lazy loading of members
-- (UIScrollView *)scrollView
+- (void)__layout
 {
-    if (!_scrollView) {
-        _scrollView = [[UIScrollView alloc] initWithFrame:
-                       [[UIScreen mainScreen] bounds]];
+    CGFloat width = CGRectGetWidth(self.view.bounds);
+    CGFloat height = CGRectGetHeight(self.view.bounds);
+    CGFloat originX = 0;
+
+    self.scrollView.frame = CGRectMake(0.0, 0.0, width, height);
+
+    for (UIViewController *vc in self.viewControllers) {
+        vc.view.frame = CGRectMake(originX, 0.0, width, height);
+        originX += width;
     }
-    return _scrollView;
+
+    self.scrollView.contentSize = CGSizeMake(originX, height);
+}
+
+- (void)__scrollToCurrentIndexAnimated:(BOOL)animated
+{
+    if (!__visibleViewControllers) {
+        return;
+    }
+
+    [self.scrollView scrollRectToVisible:[__visibleViewControllers[self.currentIndex] view].frame
+                                animated:animated];
+}
+
+#pragma mark - Scroll view delegate
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    CGFloat centerPos = scrollView.contentOffset.x / CGRectGetWidth(scrollView.frame) + 0.5;
+    _currentIndex = (NSUInteger)centerPos;
 }
 
 @end

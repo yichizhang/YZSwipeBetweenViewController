@@ -28,10 +28,8 @@
 
 @property (nonatomic, strong) NSArray *viewControllers;
 @property (nonatomic, strong) UIScrollView *scrollView;
-@property (nonatomic, assign) NSInteger initialViewControllerIndex;
+@property (nonatomic, assign) NSUInteger currentIndex;
 
-- (void)reloadViewControllers;
-- (void)scrollToViewControllerAtIndex:(NSInteger)index;
-- (void)scrollToViewControllerAtIndex:(NSInteger)index animated:(BOOL)animated;
+- (void)setCurrentIndex:(NSUInteger)currentIndex animated:(BOOL)animated;
 
 @end
