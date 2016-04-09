@@ -30,37 +30,27 @@
 
 @implementation YZSwipeBetweenViewController
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
     [self setupViewControllersForScrollView];
-
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 #pragma mark - Private methods
-- (void)removeViewControllersFromScrollView{
-
+- (void)removeViewControllersFromScrollView
+{
     for (UIViewController *vc in self.viewControllers) {
-
         [vc willMoveToParentViewController:nil];
         [vc.view removeFromSuperview];
         [vc removeFromParentViewController];
-
     }
-
 }
 
-- (void)addViewControllersToScrollView{
-
+- (void)addViewControllersToScrollView
+{
     [self.scrollView removeFromSuperview];
 
     CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
-
     CGFloat currentOriginX = 0;
 
     for (UIViewController *vc in self.viewControllers) {
@@ -75,70 +65,56 @@
         currentOriginX += mainScreenBounds.size.width;
     }
 
-    self.scrollView.contentSize =
-    CGSizeMake(
-               currentOriginX,
-               mainScreenBounds.size.height
-               );
+    self.scrollView.contentSize = CGSizeMake(currentOriginX,
+                                             mainScreenBounds.size.height);
     self.scrollView.pagingEnabled = YES;
     self.scrollView.showsHorizontalScrollIndicator = NO;
     self.scrollView.showsVerticalScrollIndicator = NO;
-
+    
     [self scrollToViewControllerAtIndex:self.initialViewControllerIndex];
 
     [self.view addSubview:self.scrollView];
-
 }
 
-- (void)setupViewControllersForScrollView{
-
+- (void)setupViewControllersForScrollView
+{
     [self removeViewControllersFromScrollView];
     [self addViewControllersToScrollView];
-
 }
 
 #pragma mark - Public Methods
-- (void)setViewControllers:(NSArray *)viewControllers{
-
+- (void)setViewControllers:(NSArray *)viewControllers
+{
     _viewControllers = viewControllers;
-
     [self setupViewControllersForScrollView];
-
 }
 
-- (void)reloadViewControllers{
-
+- (void)reloadViewControllers
+{
     [self setupViewControllersForScrollView];
-
 }
 
-- (void)scrollToViewControllerAtIndex:(NSInteger)index{
-
+- (void)scrollToViewControllerAtIndex:(NSInteger)index
+{
     [self scrollToViewControllerAtIndex:index animated:NO];
-
 }
 
-- (void)scrollToViewControllerAtIndex:(NSInteger)index animated:(BOOL)animated{
-
+- (void)scrollToViewControllerAtIndex:(NSInteger)index animated:(BOOL)animated
+{
     if (index >= 0 && index < self.viewControllers.count) {
-        [self.scrollView
-         scrollRectToVisible:[self.viewControllers[index] view].frame
-         animated:animated
-         ];
+        [self.scrollView scrollRectToVisible:[self.viewControllers[index] view].frame
+                                    animated:animated];
     }
-
 }
 
 #pragma mark - Lazy loading of members
-- (UIScrollView *)scrollView{
-
+- (UIScrollView *)scrollView
+{
     if (!_scrollView) {
         _scrollView = [[UIScrollView alloc] initWithFrame:
-                       [[UIScreen mainScreen] bounds]
-                       ];
+                       [[UIScreen mainScreen] bounds]];
     }
     return _scrollView;
-
 }
 
 @end

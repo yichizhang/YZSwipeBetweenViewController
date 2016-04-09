@@ -37,9 +37,9 @@
 
 @implementation DemoMainViewController
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
 
     float randomNum = ((float)rand() / RAND_MAX) * 1.0;
 
@@ -50,55 +50,33 @@
     UIColor *fgColor = [UIColor colorWithWhite:1.0 alpha:1.00];
     UIColor *bgColor = [UIColor colorWithWhite:0.0 alpha:0.75];
 
-
-
     self.pushVCButton = [[UIButton alloc] initWithFrame:CGRectZero];
     [self.pushVCButton setTitle:@"Push a VC" forState:UIControlStateNormal];
     [self.pushVCButton setTitleColor:fgColor forState:UIControlStateNormal];
     [self.pushVCButton setBackgroundColor:bgColor];
-
     [self.pushVCButton addTarget:self action:@selector(pushVCButtonTapped:) forControlEvents:UIControlEventTouchDown];
-
     [self.view addSubview:self.pushVCButton];
-
-
 
     self.scrollVCButton = [[UIButton alloc] initWithFrame:CGRectZero];
     [self.scrollVCButton setTitle:@"Scroll To: (Select From Below)" forState:UIControlStateNormal];
     [self.scrollVCButton setTitleColor:fgColor forState:UIControlStateNormal];
     [self.scrollVCButton setBackgroundColor:bgColor];
-
     [self.scrollVCButton addTarget:self action:@selector(scrollVCButtonTapped:) forControlEvents:UIControlEventTouchDown];
-
     [self.view addSubview:self.scrollVCButton];
-
-
 
     self.changeVCsButton = [[UIButton alloc] initWithFrame:CGRectZero];
     [self.changeVCsButton setTitle:@"Replace All The VCs" forState:UIControlStateNormal];
     [self.changeVCsButton setTitleColor:fgColor forState:UIControlStateNormal];
     [self.changeVCsButton setBackgroundColor:bgColor];
-
     [self.changeVCsButton addTarget:self action:@selector(changeVCsButtonTapped:) forControlEvents:UIControlEventTouchDown];
-
     [self.view addSubview:self.changeVCsButton];
 
-
-
-
-    self.segControl = [[UISegmentedControl alloc]
-                       initWithItems:@[
-                                       @"Index: 0",
-                                       @"Index: 1",
-                                       @"Index: 2"
-                                       ]
-                       ];
+    self.segControl = [[UISegmentedControl alloc] initWithItems:@[@"Index: 0",
+                                                                  @"Index: 1",
+                                                                  @"Index: 2"]];
     self.segControl.tintColor = fgColor;
     self.segControl.backgroundColor = bgColor;
     [self.view addSubview:self.segControl];
-
-
-
 
     self.viewControllerDetailLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     self.viewControllerDetailLabel.textColor = fgColor;
@@ -106,20 +84,15 @@
     self.viewControllerDetailLabel.text = self.description;
     [self.view addSubview:self.viewControllerDetailLabel];
 
-
-
     [self.segControl sizeToFit];
-
     [self.pushVCButton sizeToFit];
     [self.scrollVCButton sizeToFit];
     [self.changeVCsButton sizeToFit];
     [self.viewControllerDetailLabel sizeToFit];
-
-
 }
 
-- (void)viewDidLayoutSubviews{
-
+- (void)viewDidLayoutSubviews
+{
     [super viewDidLayoutSubviews];
 
     float centerY = self.view.center.y*0.4;
@@ -135,33 +108,24 @@
     self.changeVCsButton.center = CGPointMake(centerX, centerY);
     centerY += buttonHeight*2;
     self.viewControllerDetailLabel.center = CGPointMake(centerX, centerY);
-
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
-- (void)pushVCButtonTapped:(id)sender{
-
+- (void)pushVCButtonTapped:(id)sender
+{
     UIViewController *vc = [DemoMainViewController new];
     [self.navigationController pushViewController:vc animated:YES];
-
 }
 
-- (void)scrollVCButtonTapped:(id)sender{
-
+- (void)scrollVCButtonTapped:(id)sender
+{
     AppDelegate *appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
     [appDelegate.swipeBetweenVC scrollToViewControllerAtIndex:self.segControl.selectedSegmentIndex];
-
 }
 
-- (void)changeVCsButtonTapped:(id)sender{
-
+- (void)changeVCsButtonTapped:(id)sender
+{
     AppDelegate *appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
     [appDelegate setupRootViewControllerForWindow];
-    
 }
 
 @end
