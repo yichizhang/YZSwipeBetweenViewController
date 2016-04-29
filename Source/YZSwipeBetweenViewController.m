@@ -82,7 +82,7 @@
     NSParameterAssert(currentIndex < self.viewControllers.count);
 
     _currentIndex = currentIndex;
-    [self __scrollToCurrentIndexAnimated:NO];
+    [self __scrollToCurrentIndexAnimated:animated];
 }
 
 #pragma mark - Private methods
