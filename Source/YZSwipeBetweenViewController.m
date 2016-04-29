@@ -1,143 +1,163 @@
-/*
- 
- Copyright (c) 2014 Yichi Zhang
- https://github.com/yichizhang
- zhang-yi-chi@hotmail.com
- 
- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- 
- The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
- 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- 
- */
+//
+//  Copyright (c) 2016 YICHI ZHANG
+//  https://github.com/yichizhang
+//  zhang-yi-chi@hotmail.com
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a
+//  copy of this software and associated documentation files (the "Software"),
+//  to deal in the Software without restriction, including without limitation
+//  the rights to use, copy, modify, merge, publish, distribute, sublicense,
+//  and/or sell copies of the Software, and to permit persons to whom the
+//  Software is furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+//  THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+//  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+//  DEALINGS IN THE SOFTWARE.
+//
 
 #import "YZSwipeBetweenViewController.h"
 
-@interface YZSwipeBetweenViewController ()
+@interface YZSwipeBetweenViewController () <UIScrollViewDelegate>
+
+@property (nonatomic, strong) NSArray *_visibleViewControllers;
 
 @end
 
 @implementation YZSwipeBetweenViewController
 
-- (void)viewDidLoad {
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+
+    if (![self.viewControllers isEqualToArray:__visibleViewControllers]) {
+        [self __setUp];
+        [self __scrollToCurrentIndexAnimated:NO];
+    }
+}
+
+- (void)viewDidLoad
+{
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
-	[self setupViewControllersForScrollView];
-	
+
+    self.scrollView = [[UIScrollView alloc] initWithFrame:self.view.bounds];
+    self.scrollView.delegate = self;
+    self.scrollView.translatesAutoresizingMaskIntoConstraints = false;
+    [self.view addSubview:self.scrollView];
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (void)viewDidLayoutSubviews
+{
+    [self __layout];
+    [self __scrollToCurrentIndexAnimated:NO];
 }
 
-#pragma mark - Private methods
-- (void)removeViewControllersFromScrollView{
-	
-	for (UIViewController *vc in self.viewControllers) {
-		
-		[vc willMoveToParentViewController:nil];
-		[vc.view removeFromSuperview];
-		[vc removeFromParentViewController];
-		
-	}
-	
-}
+#pragma mark - Override setters / getters
 
-- (void)addViewControllersToScrollView{
-	
-	[self.scrollView removeFromSuperview];
-	
-	CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
-	
-	CGFloat currentOriginX = 0;
-	
-	for (UIViewController *vc in self.viewControllers) {
-		CGRect frame = vc.view.frame;
-		frame.origin.x = currentOriginX;
-		vc.view.frame = frame;
-		
-		[self addChildViewController:vc];
-		[self.scrollView addSubview:vc.view];
-		[vc didMoveToParentViewController:self];
-		
-		currentOriginX += mainScreenBounds.size.width;
-	}
-	
-	self.scrollView.contentSize =
-	CGSizeMake(
-			   currentOriginX,
-			   mainScreenBounds.size.height
-			   );
-	self.scrollView.pagingEnabled = YES;
-	self.scrollView.showsHorizontalScrollIndicator = NO;
-	self.scrollView.showsVerticalScrollIndicator = NO;
-	
-	[self scrollToViewControllerAtIndex:self.initialViewControllerIndex];
-	
-	[self.view addSubview:self.scrollView];
-	
-}
-
-- (void)setupViewControllersForScrollView{
-	
-	[self removeViewControllersFromScrollView];
-	[self addViewControllersToScrollView];
-	
+- (void)setCurrentIndex:(NSUInteger)currentIndex
+{
+    [self setCurrentIndex:currentIndex animated:NO];
 }
 
 #pragma mark - Public Methods
-- (void)setViewControllers:(NSArray *)viewControllers{
-	
-	_viewControllers = viewControllers;
-	
-	[self setupViewControllersForScrollView];
-	
+
+- (void)setViewControllers:(NSArray *)viewControllers
+{
+    _viewControllers = viewControllers;
+
+    // __visibleViewControllers exist, means that self has appeared
+    if (__visibleViewControllers) {
+        [self __setUp];
+    }
 }
 
-- (void)reloadViewControllers{
-	
-	[self setupViewControllersForScrollView];
-	
+- (void)setCurrentIndex:(NSUInteger)currentIndex animated:(BOOL)animated
+{
+    NSParameterAssert(currentIndex < self.viewControllers.count);
+
+    _currentIndex = currentIndex;
+    [self __scrollToCurrentIndexAnimated:animated];
 }
 
-- (void)scrollToViewControllerAtIndex:(NSInteger)index{
-	
-	[self scrollToViewControllerAtIndex:index animated:NO];
+#pragma mark - Private methods
 
+- (void)__setUp
+{
+    [self __cleanViewControllers];
+    [self __addViewControllers];
+    [self __layout];
 }
 
-- (void)scrollToViewControllerAtIndex:(NSInteger)index animated:(BOOL)animated{
-
-	if (index >= 0 && index < self.viewControllers.count) {
-		[self.scrollView
-		 scrollRectToVisible:[self.viewControllers[index] view].frame
-		 animated:animated
-		 ];
-	}
-
+- (void)__cleanViewControllers
+{
+    for (UIViewController *vc in __visibleViewControllers) {
+        [vc willMoveToParentViewController:nil];
+        [vc.view removeFromSuperview];
+        [vc removeFromParentViewController];
+        [vc didMoveToParentViewController:nil];
+    }
 }
 
-#pragma mark - Lazy loading of members
-- (UIScrollView *)scrollView{
-	
-	if (!_scrollView) {
-		_scrollView = [[UIScrollView alloc] initWithFrame:
-					   [[UIScreen mainScreen] bounds]
-					   ];
-	}
-	return _scrollView;
-	
-}
-/*
-#pragma mark - Navigation
+- (void)__addViewControllers
+{
+    for (UIViewController *vc in self.viewControllers) {
+        [vc willMoveToParentViewController:self];
+        [self addChildViewController:vc];
+        [self.scrollView addSubview:vc.view];
+        [vc didMoveToParentViewController:self];
 
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+        vc.view.translatesAutoresizingMaskIntoConstraints = NO;
+    }
+    __visibleViewControllers = [self.viewControllers copy];
+
+    self.scrollView.pagingEnabled = YES;
+    self.scrollView.showsHorizontalScrollIndicator = NO;
+    self.scrollView.showsVerticalScrollIndicator = NO;
+
+    NSUInteger maxCurrentIndex = __visibleViewControllers.count - 1;
+    if (self.currentIndex > maxCurrentIndex) {
+        self.currentIndex = maxCurrentIndex;
+    }
 }
-*/
+
+- (void)__layout
+{
+    CGFloat width = CGRectGetWidth(self.view.bounds);
+    CGFloat height = CGRectGetHeight(self.view.bounds);
+    CGFloat originX = 0;
+
+    self.scrollView.frame = CGRectMake(0.0, 0.0, width, height);
+
+    for (UIViewController *vc in self.viewControllers) {
+        vc.view.frame = CGRectMake(originX, 0.0, width, height);
+        originX += width;
+    }
+
+    self.scrollView.contentSize = CGSizeMake(originX, height);
+}
+
+- (void)__scrollToCurrentIndexAnimated:(BOOL)animated
+{
+    if (!__visibleViewControllers) {
+        return;
+    }
+
+    [self.scrollView scrollRectToVisible:[__visibleViewControllers[self.currentIndex] view].frame
+                                animated:animated];
+}
+
+#pragma mark - Scroll view delegate
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    CGFloat centerPos = scrollView.contentOffset.x / CGRectGetWidth(scrollView.frame) + 0.5;
+    _currentIndex = (NSUInteger)centerPos;
+}
 
 @end
