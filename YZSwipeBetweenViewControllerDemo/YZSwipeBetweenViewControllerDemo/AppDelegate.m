@@ -36,14 +36,14 @@
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window.backgroundColor = [UIColor blackColor];
 
-    [self setupRootViewController];
+    [self setupRootViewControllerForWindow];
 
     [self.window makeKeyAndVisible];
 
     return YES;
 }
 
-- (void)setupRootViewController
+- (void)setupRootViewControllerForWindow
 {
     self.swipeBetweenVC = [YZSwipeBetweenViewController new];
 
