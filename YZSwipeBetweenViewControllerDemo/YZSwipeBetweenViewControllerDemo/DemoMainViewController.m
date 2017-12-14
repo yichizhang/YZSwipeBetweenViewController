@@ -24,6 +24,7 @@
 
 #import "DemoMainViewController.h"
 #import "AppDelegate.h"
+#import "YZSwipeBetweenViewControllerDemo-Swift.h"
 
 @interface DemoMainViewController ()
 

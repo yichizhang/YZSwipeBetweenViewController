@@ -24,7 +24,7 @@
 
 #import <UIKit/UIKit.h>
 
-#import "YZSwipeBetweenViewController.h"
+@class YZSwipeBetweenViewController;
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
